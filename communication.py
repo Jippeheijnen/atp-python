@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Union
 from functools import wraps
-from util import Pins
 from ctypes import cdll
 
 
@@ -64,19 +63,3 @@ def i2c_send_receive(f):
         # ^ pass on self here
 
     return wrapper
-
-
-class Serial:
-    def __init__(self,
-                 tx: Union[Pins, None],
-                 rx: Union[Pins, None]):
-        self.tx = tx
-        self.rx = rx
-        pass
-
-    def __repr__(self):
-        return 'Serial'
-
-    @log_method_calls
-    def send(self, data: bytes, d_len: int):
-        pass
