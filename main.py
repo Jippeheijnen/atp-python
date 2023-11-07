@@ -8,19 +8,27 @@ from communication import log_method_calls
 # from communication import Serial
 from util import VEML_REG
 
-# Decorator for logging
-def log_data(func):
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        print(f"{func.__name__} executed in {end_time - start_time} seconds")
-        return result
 
-    return wrapper
+def calcMotorCorrection(uv_data:
+List[int]) -> Tuple[float, float]:
+    """
+    A (Pure) function for calculating the stepper movements.
+    :param uv_data: A 2x2 matrix which contains the
+    :return: A tuple containing the movement values for the stepper motors.
+    """
+
+    # assuming the UV sensors are positioned as follows:
+
+    # UV1 | UV2
+    # ---------
+    # UV3 | UV4
+
+    return (((uv_data[0] / 100 + uv_data[3] / 100) / 2 -
+             (uv_data[1] / 100 + uv_data[2] / 100) / 2),  # left - right
+            ((uv_data[0] / 100 + uv_data[1] / 100) / 2 -
+             (uv_data[2] / 100 + uv_data[3] / 100) / 2))  # up - down
 
 
-if __name__ == '__main__':
     # Constants for calibration and tracking
     TARGET_UV_THRESHOLD = 1000  # Adjust this threshold based on your calibration
     HORIZONTAL_SPEED = 0.5  # Adjust the speed as needed
