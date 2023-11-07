@@ -82,50 +82,8 @@ if __name__ == '__main__':
     #
     # # Function to track the sun
     # @log_data
-    # def track_sun():
-    #     while True:
-    #         # hieronder wat voorbeeld logica
-    #         uv_values = [sensor>> for sensor in uv_sensors]
-    #         # avg_uv_value = sum(uv_values) / len(uv_values)
-    #
-    #         # Check if the average UV value is above the threshold
-    #         # if avg_uv_value > TARGET_UV_THRESHOLD:
-    #         if True:
-    #             # Calculate adjustments for horizontal and vertical motors
-    #             horizontal_adjustment = 0  # Calculate based on sensor data
-    #             vertical_adjustment = 0  # Calculate based on sensor data
-    #
-    #             # Move the motors to adjust the solar panel position
-    #             # motors[0].move(HORIZONTAL_SPEED * horizontal_adjustment)
-    #             # vertical_motor.move(VERTICAL_SPEED * vertical_adjustment)
-    #             # # Move the motors to adjust the solar panel position
-    #             # horizontal_motor.move(HORIZONTAL_SPEED * horizontal_adjustment)
-    #             # vertical_motor.move(VERTICAL_SPEED * vertical_adjustment)
-    #         time.sleep(1)  # Adjust the sleep duration as needed
-    #
-    #
-    # def calcMotorCorrection(uv_data:
-    # Tuple[
-    #     Tuple[float, float],
-    #     Tuple[float, float]
-    # ]) -> Tuple[float, float]:
-    #     """
-    #     A (Pure) function for calculating the stepper movements.
-    #     :param uv_data: A 2x2 matrix which contains the
-    #     :return: A tuple containing the movement values for the stepper motors.
-    #     """
-    #
-    #     # assuming the UV sensors are positioned as follows:
-    #
-    #     # UV1 | UV2
-    #     # ---------
-    #     # UV3 | UV4
-    #
-    #     horizontal_movement = (uv_data[1][0] - uv_data[0][1])  # UV3 - UV2
-    #     vertical_movement = (uv_data[0][0] - uv_data[1][1])  # UV1 - UV4
-    #
-    #     return [horizontal_movement, vertical_movement]
 
+    #
 
     # if __name__ == "__main__":
     #     # Define example UV data as 2x2 matrices
