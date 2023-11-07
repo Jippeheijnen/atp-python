@@ -1,12 +1,12 @@
-import ctypes
+import asyncio
 import time
-from ctypes import c_ubyte
-from typing import List
+from asyncio import Task
+from typing import List, Any, Coroutine, Tuple
+from concurrent.futures import ProcessPoolExecutor
+
 from atp_cplusplus import VEML6075, TMC2209
 
-from communication import log_method_calls
-# from communication import Serial
-from util import VEML_REG
+from util import LOADCELL, log_method_calls, log_data, VEML_REG
 
 
 def calcMotorCorrection(uv_data:
@@ -29,10 +29,13 @@ List[int]) -> Tuple[float, float]:
              (uv_data[2] / 100 + uv_data[3] / 100) / 2))  # up - down
 
 
+async def main():
+    subtasks: List[Coroutine] = []
+
     # Constants for calibration and tracking
-    TARGET_UV_THRESHOLD = 1000  # Adjust this threshold based on your calibration
-    HORIZONTAL_SPEED = 0.5  # Adjust the speed as needed
-    VERTICAL_SPEED = 0.3  # Adjust the speed as needed
+    W_THRS = 3  # weight threshold at which the panel starts clearing debris.
+    X_THRS = 0.5  # horizontal correction threshold
+    Y_THRS = 0.3  # vertical correction threshold
 
     # UV sensors
     topLeft: VEML6075 = VEML6075()
@@ -41,8 +44,11 @@ List[int]) -> Tuple[float, float]:
     bottomRight: VEML6075 = VEML6075()
 
     # Stepper motors
-    horizontal: TMC2209 = TMC2209()
-    vertical: TMC2209 = TMC2209()
+    horizontal: TMC2209 = TMC2209(0)
+    vertical: TMC2209 = TMC2209(1)
+
+    # loadcell
+    loadcell: LOADCELL = LOADCELL()
 
     # Initialize UV sensors
     uv_sensors = [topLeft,
@@ -54,22 +60,55 @@ List[int]) -> Tuple[float, float]:
     motors = [horizontal,
               vertical]
 
+    # setting up the UV sensors
     i: int = 0
     for i in range(4):
-        uv_sensors[i] << [VEML_REG.UV_CONF, i, 0x0] # sending command
+        uv_sensors[i] << [VEML_REG.UV_CONF, i, 0x0]  # sending command
 
-    @log_data
-    @log_method_calls
-    def func(uv_sensors):
-        for sensor in uv_sensors:
-            print("\n\n")
-            print(f"sensor config is    : {bin(sensor >> VEML_REG.UV_CONF)}")
-            print(f"sensor UVA data is  : {hex(sensor >> VEML_REG.UVA_Data)}")
-            time.sleep(0.125)
+    # The main eventloop
+    async def main_loop():
+        # for sensor in uv_sensors:
+        #     print("\n\n")
+        #     print(f"sensor config is                : {bin(sensor >> VEML_REG.UV_CONF)}")
+        #     print(f"sensor UVA data is              : {hex(sensor >> VEML_REG.UVA_Data)}")
+        #     print(f"current weight on the panel is  : {loadcell.get_weight()}grams")
+        # await asyncio.sleep(0.05)
 
-    for i in range(20):
-        func(uv_sensors)
+        uv_values: List[int] = [sensor >> VEML_REG.UVA_Data for sensor in uv_sensors]
+        avg_uv_value = sum(uv_values) / len(uv_values)
+        correction: Tuple[float, float] = calcMotorCorrection(uv_values)
+        print(f"[{uv_values[0]},{uv_values[1]}]\n"
+              f"[{uv_values[2]},{uv_values[3]}]\n"
+              f"weight: {loadcell.get_weight()}\n"
+              f"motor correction: {correction}\n\n")
 
+        # checking motors to see if they are not overheating
+        h_response = horizontal << []
+        v_response = vertical << []
+
+        # Check if the horizontal motor correction value is above the threshold of 0.1
+        if correction[0] - .1 > 0 > correction[0] + .1:
+            horizontal << []
+
+        # Check if the vertical motor correction value is above the threshold of 0.1
+        if correction[1] - .1 > 0 > correction[1] + .1:
+            vertical << []
+
+        await asyncio.sleep(0.5)  # Adjust the sleep duration as needed
+
+    # running everything simultaneously (for the simulation of the loadcell)
+    f2 = asyncio.create_task(loadcell.start_timer())
+
+    while True:
+        f1 = asyncio.create_task(loadcell.run())
+        f3 = asyncio.create_task(main_loop())
+        await asyncio.wait([f1, f3])
+
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    loop.close()
 
     # def move_stepper_to_target(self, target_position):
     #     if self.current_position == target_position:
