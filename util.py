@@ -4,13 +4,6 @@ import random
 import asyncio
 
 
-def meta_class(clss):
-    async def wrapper(*args, **kwargs):
-        return await clss.run(clss)
-    return wrapper
-
-
-# @meta_class
 class LOADCELL:
     """
     This is the simulated class for the loadcell sensor, it returns random weight values.
@@ -42,12 +35,11 @@ class LOADCELL:
 
     async def run(self):
         if not self.time_trigger:
-            self.weight  = random.uniform(0.01, 0.1) + self.weight_offset
+            self.weight = random.uniform(0.01, 0.1) + self.weight_offset
         else:
             self.weight_offset += random.uniform(0.1, 0.5)
             self.time_trigger = False
             asyncio.create_task(self.start_timer())
-
 
 
 class VEML_REG:
