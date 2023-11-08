@@ -74,12 +74,12 @@ async def main():
 
     # writing GCONF
     data = 414170769
-    datagram_h = [5, 0, 127, *[val for val in split_32bits_lsb_msb(data)],
-                  calc_crc([5, 0, 0, *split_32bits_lsb_msb(data)])]
-    h_response = [motor << datagram_h for motor in motors]  # simulating the bus, so all slaves receive a datagram
-    datagram_v = [hex(5), hex(1), hex(127), hex(*split_32bits_lsb_msb(data)),
-                  hex(calc_crc([5, 0, 0, *split_32bits_lsb_msb(data)]))]
-    v_response = [motor << datagram_v for motor in motors]
+    # datagram_h = [5, 0, 127, *[val for val in split_32bits_lsb_msb(data)],
+    #               calc_crc([5, 0, 0, *split_32bits_lsb_msb(data)])]
+    # h_response = [motor << datagram_h for motor in motors]  # simulating the bus, so all slaves receive a datagram
+    # datagram_v = [hex(5), hex(1), hex(127), hex(*split_32bits_lsb_msb(data)),
+    #               hex(calc_crc([5, 0, 0, *split_32bits_lsb_msb(data)]))]
+    # v_response = [motor << datagram_v for motor in motors]
 
     # reading GCONF to check if chip received.
     # h_response = [motor << [5, 0, 0, calc_crc([5, 0, 0b00000000])] for motor in motors]
