@@ -93,20 +93,21 @@ async def main():
     # The main eventloop
     async def main_loop():
         for sensor in uv_sensors:
-            print("\n\n")
-            print(f"sensor config is                : {bin(sensor >> VEML_REG.UV_CONF)}")
-            print(f"sensor UVA data is              : {hex(sensor >> VEML_REG.UVA_Data)}")
-            print(f"current weight on the panel is  : {loadcell.get_weight()}grams")
+            # print("\n\n")
+            # print(f"sensor config is                : {bin(sensor >> VEML_REG.UV_CONF)}")
+            # print(f"sensor UVA data is              : {hex(sensor >> VEML_REG.UVA_Data)}")
+            pass
         await asyncio.sleep(0.05)
 
         uv_values: List[int] = [sensor >> VEML_REG.UVA_Data for sensor in uv_sensors]
 
         correction: Tuple[float, float] = calcMotorCorrection(uv_values)
 
-        # print(f"[{uv_values[0]},{uv_values[1]}]\n"
-        #      f"[{uv_values[2]},{uv_values[3]}]\n"
-        #      f"weight: {loadcell.get_weight()}\n"
-        #      f"motor correction: {correction}\n\n")
+        print(f"[{uv_values[0]},{uv_values[1]}]\n"
+              f"[{uv_values[2]},{uv_values[3]}]\n"
+              f"weight: {loadcell.get_weight()}\n"
+              f"motor correction: {correction}\n"
+              f"current weight on the panel is  : {loadcell.get_weight()}grams\n\n")
 
         # checking motors to see if they are not overheating
         # datagram lsb -> msb =
@@ -116,7 +117,7 @@ async def main():
         # v_response = [motor << [5, 1, 0b10000000, ] for motor in motors]
 
         # Check if the horizontal motor correction value is above the threshold of 0.1
-        if correction[0] - .1 > 0 > correction[0] + .1:
+        if correction[0] - .1 > 0:  # > correction[0] + .1:
             horizontal << []
 
         # Check if the vertical motor correction value is above the threshold of 0.1
